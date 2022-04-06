@@ -16,23 +16,16 @@ import './Home.css';
 import {useState} from "react";
 
 interface Rick_MortyAPI{
-    results: Episode[]
+    results: Episode[],
+    next?: string
 }
 
 
 interface Episode{
-    info: Episode_info[],
-    result: Episode_result[]
-}
-
-interface  Episode_info{
     count: number,
     pages: number,
-    next?: string,
-    prev?: string
-}
-
-interface Episode_result{
+    next: string,
+    prev: string
     id: number,
     name: string,
     air_date: string,
@@ -42,18 +35,36 @@ interface Episode_result{
     created: string
 }
 
+// interface  Episode_info{
+//     count: number,
+//     pages: number,
+//     next?: string,
+//     prev?: string
+// }
+//
+// interface Episode_result{
+//     id: number,
+//     name: string,
+//     air_date: string,
+//     episode: string,
+//     characters: string[],
+//     url: string,
+//     created: string
+// }
+
 const Home: React.FC = () => {
-    const [episodes, setEpisodes] = useState<Rick_MortyAPI>({results: []})
+    const [episodes, setEpisodes] = useState<Rick_MortyAPI>({results:[]})
     const [isInfiniteDisabled, setIsInfiniteDisabled] = useState(false);
 
     async function getEpisode(url: string){
+        setIsInfiniteDisabled(true);
+
         try {
-            setIsInfiniteDisabled(true);
             let response = await fetch(url);
             let answer = await response.json();
 
             let final = {
-                info: answer.info,
+                next: answer.info.next,
                 results:[...episodes.results, ...answer.results]
             }
 
@@ -61,9 +72,11 @@ const Home: React.FC = () => {
         } catch (error){
             console.error(error);
         }
+
+        setIsInfiniteDisabled(false);
     }
 
-    useIonViewDidEnter(async () => await getEpisode('https://rickandmortyapi.com/api/episode/'));
+    useIonViewDidEnter(async () => await getEpisode('https://rickandmortyapi.com/api/episode/?page=1'));
 
     return (
         <IonPage>
@@ -74,6 +87,7 @@ const Home: React.FC = () => {
             </IonHeader>
             <IonContent fullscreen>
                 <IonList>
+                    {episodes.next}
                     {episodes.results.map(value =>
                         <IonItem>
                             <IonLabel>
@@ -86,7 +100,7 @@ const Home: React.FC = () => {
                     )}
                 </IonList>
                 <IonInfiniteScroll
-                    onIonInfinite={async () => await getEpisode(episodes.results.info.next as string)}
+                    onIonInfinite={async () => await getEpisode(episodes.next as string)}
                     threshold="100px"
                     disabled={isInfiniteDisabled}
                 >
