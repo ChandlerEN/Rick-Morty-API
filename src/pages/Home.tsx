@@ -1,14 +1,15 @@
 import {
     IonContent,
     IonHeader,
-    IonInfiniteScroll,
-    IonInfiniteScrollContent,
     IonItem,
     IonLabel,
     IonList,
     IonPage,
     IonTitle,
     IonToolbar,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonSearchbar,
     useIonViewDidEnter, withIonLifeCycle
 } from '@ionic/react';
 import ExploreContainer from '../components/ExploreContainer';
@@ -20,12 +21,9 @@ interface Rick_MortyAPI{
     next?: string
 }
 
-
 interface Episode{
     count: number,
     pages: number,
-    next: string,
-    prev: string
     id: number,
     name: string,
     air_date: string,
@@ -54,7 +52,12 @@ interface Episode{
 
 const Home: React.FC = () => {
     const [episodes, setEpisodes] = useState<Rick_MortyAPI>({results:[]})
+    const [list_state, setListState] = useState<Rick_MortyAPI>({results:[]})
     const [isInfiniteDisabled, setIsInfiniteDisabled] = useState(false);
+
+    // const [searchText, setSearchText] = useState('');
+
+    const [Test, setTest] = useState('');
 
     async function getEpisode(url: string){
         setIsInfiniteDisabled(true);
@@ -69,11 +72,38 @@ const Home: React.FC = () => {
             }
 
             setEpisodes(final);
+            setListState(final);
         } catch (error){
             console.error(error);
         }
 
         setIsInfiniteDisabled(false);
+    }
+
+    async function getSearched(url: string){
+        if(url === ''){
+            setEpisodes(list_state);
+        }
+        else{
+            let response = await fetch("https://rickandmortyapi.com/api/episode/?name=" + url);
+            let answer = await response.json();
+
+            if(answer.error){
+                let empty = {
+                    next: "empty",
+                    results: []
+                }
+
+                setEpisodes(empty);
+
+                // setTest("Not found");
+            }
+            else{
+                setEpisodes(answer);
+
+                // setTest("https://rickandmortyapi.com/api/episode/?name=" + url);
+            }
+        }
     }
 
     useIonViewDidEnter(async () => await getEpisode('https://rickandmortyapi.com/api/episode/?page=1'));
@@ -82,12 +112,13 @@ const Home: React.FC = () => {
         <IonPage>
             <IonHeader>
                 <IonToolbar>
-                    <IonTitle>All Episodes</IonTitle>
+                    {/*<IonTitle>All Episodes</IonTitle>*/}
+                    <IonSearchbar onIonChange={e => {getSearched(e.detail.value!)}}></IonSearchbar>
                 </IonToolbar>
             </IonHeader>
             <IonContent fullscreen>
                 <IonList>
-                    {episodes.next}
+                    {Test}
                     {episodes.results.map(value =>
                         <IonItem>
                             <IonLabel>
