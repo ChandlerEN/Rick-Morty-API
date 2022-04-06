@@ -16,12 +16,12 @@ import ExploreContainer from '../components/ExploreContainer';
 import './Home.css';
 import {useState} from "react";
 
-interface Rick_MortyAPI{
+export interface Rick_MortyAPI{
     results: Episode[],
     next?: string
 }
 
-interface Episode{
+export interface Episode{
     count: number,
     pages: number,
     id: number,
@@ -63,8 +63,8 @@ const Home: React.FC = () => {
         setIsInfiniteDisabled(true);
 
         try {
-            let response = await fetch(url);
-            let answer = await response.json();
+            let request = await fetch(url);
+            let answer = await request.json();
 
             let final = {
                 next: answer.info.next,
@@ -80,27 +80,21 @@ const Home: React.FC = () => {
         setIsInfiniteDisabled(false);
     }
 
-    async function getSearched(url: string){
-        if(url === ''){
+    async function getSearched(episode_name: string){
+        if(episode_name === ''){
             setEpisodes(list_state);
         }
         else{
-            let response = await fetch("https://rickandmortyapi.com/api/episode/?name=" + url);
-            let answer = await response.json();
+            let request = await fetch(`https://rickandmortyapi.com/api/episode/?name=${episode_name}`);
+            let answer = await request.json();
 
             if(answer.error){
-                let empty = {
-                    next: "empty",
-                    results: []
-                }
-
+                let empty = {next: "", results: []}
                 setEpisodes(empty);
-
                 // setTest("Not found");
             }
             else{
                 setEpisodes(answer);
-
                 // setTest("https://rickandmortyapi.com/api/episode/?name=" + url);
             }
         }
@@ -120,7 +114,7 @@ const Home: React.FC = () => {
                 <IonList>
                     {Test}
                     {episodes.results.map(value =>
-                        <IonItem>
+                        <IonItem routerLink={"detail/"+value.id}>
                             <IonLabel>
                                 {/*<div>{value.name}</div>*/}
                                 {value.name}
