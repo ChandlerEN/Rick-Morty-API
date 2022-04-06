@@ -22,13 +22,12 @@ const Detail: React.FC<DetailPageProps> = ({match}) => {
     const [Test, setTest] = useState('');
 
     async function getEpisodebyID(id: string) {
-        const request = await fetch(`https://rickandmortyapi.com/api/episode/?id=${id}`);
+        const request = await fetch(`https://rickandmortyapi.com/api/episode/${id}`);
         const answer = await request.json() as Episode;
 
         console.log(`https://rickandmortyapi.com/api/episode/?id=${id}`);
 
         setEpisodes(answer);
-        setTest(answer.episode);
     }
 
     useIonViewWillEnter(async () => {await getEpisodebyID(match.params.id)});
@@ -43,7 +42,6 @@ const Detail: React.FC<DetailPageProps> = ({match}) => {
             </IonToolbar>
             <IonContent>
                 {Test}
-                <IonItem>Sup</IonItem>
             </IonContent>
         </IonPage>
     );
