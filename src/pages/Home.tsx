@@ -112,7 +112,6 @@ const Home: React.FC = () => {
             </IonHeader>
             <IonContent fullscreen>
                 <IonList>
-                    {Test}
                     {episodes.results.map(value =>
                         <IonItem routerLink={"detail/"+value.id}>
                             <IonLabel>
